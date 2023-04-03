@@ -1,18 +1,21 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-  </div>
+	<div>
+		<h1>Home</h1>
+		<a href="javascript:;" @click="logout">退出登录</a>
+	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+<script setup lang="ts">
+import { useRouter } from "vue-router"
+import { userStorage } from "./hooks/user"
 
-export default defineComponent({
-  name: 'HomeView',
-  components: {
-    HelloWorld,
-  },
-});
+const { removeStorage } = userStorage()
+const router = useRouter()
+
+const logout = () => {
+	removeStorage()
+    router.push('/login')
+}
 </script>
+
+<style></style>

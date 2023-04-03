@@ -1,30 +1,54 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+	<div>
+    <router-view></router-view>
+  </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
+import { Storage } from '@/libs/utils'
+import { checkLoginService } from './services/User'
+import { userStorage } from './views/hooks/user'
 
-nav {
-  padding: 30px;
+const router = useRouter()
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+const { removeStorage } = userStorage()
 
-    &.router-link-exact-active {
-      color: #42b983;
+router.beforeEach(async (to, from)=>{
+   const accessToken = Storage.get('access_token')
+
+   if(accessToken){
+
+    const { err_code } = await checkLoginService()
+    console.log(err_code , accessToken , new Date() ,'结束')
+    if(err_code && to.name == 'home'){
+      removeStorage()
+      return {
+        name : 'login'
+      }
     }
-  }
-}
-</style>
+
+    if(!err_code &&( to.name === 'login' || to.name === 'register') ){
+       return {
+        name : 'home'
+      }
+    }
+
+     if(err_code && to.name == 'register'){
+       removeStorage()
+     }
+
+
+
+   }else{
+    alert('请登录')
+      if(to.name !== 'login' && to.name!== 'register'){
+        return {
+          name: 'login'
+        }
+      }
+   }
+})
+</script>
+
+<style></style>
